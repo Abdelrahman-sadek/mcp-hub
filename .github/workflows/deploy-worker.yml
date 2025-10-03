@@ -51,7 +51,7 @@ jobs:
         if: success()
         run: |
           echo "✅ Worker deployed successfully"
-          echo "🔗 Worker URL: https://mcp-hub-worker.${{ secrets.CLOUDFLARE_SUBDOMAIN }}.workers.dev"
+          echo "🔗 Worker URL: https://mcp-hub-worker.tito-7t.workers.dev"
 
       - name: Notify on failure
         if: failure()
