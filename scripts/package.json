@@ -1,0 +1,23 @@
+{
+  "name": "mcp-hub-scripts",
+  "version": "1.0.0",
+  "description": "Utility scripts for MCP Hub",
+  "main": "health-check.js",
+  "scripts": {
+    "health-check": "node health-check.js",
+    "validate-registry": "node validate-registry.js"
+  },
+  "keywords": [
+    "mcp",
+    "health-check",
+    "validation"
+  ],
+  "author": "MCP Hub Team",
+  "license": "MIT",
+  "dependencies": {
+    "node-fetch": "^3.3.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

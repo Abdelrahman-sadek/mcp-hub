@@ -1,0 +1,163 @@
+name: Deploy Cloudflare Worker
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'worker/**'
+      - '.github/workflows/deploy-worker.yml'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    name: Deploy Worker
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: worker/package.json
+
+      - name: Install dependencies
+        run: |
+          cd worker
+          npm ci
+
+      - name: Run tests
+        run: |
+          cd worker
+          npm test
+
+      - name: Build worker
+        run: |
+          cd worker
+          npm run build
+
+      - name: Deploy to Cloudflare Workers
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: worker
+          command: deploy
+
+      - name: Update deployment status
+        if: success()
+        run: |
+          echo "✅ Worker deployed successfully"
+          echo "🔗 Worker URL: https://mcp-hub-worker.${{ secrets.CLOUDFLARE_SUBDOMAIN }}.workers.dev"
+
+      - name: Notify on failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '🚨 Worker Deployment Failed',
+              body: `
+                ## Deployment Failure
+                
+                The Cloudflare Worker deployment failed in workflow run: ${context.runId}
+                
+                **Branch:** ${context.ref}
+                **Commit:** ${context.sha}
+                **Workflow:** ${context.workflow}
+                
+                Please check the [workflow logs](${context.payload.repository.html_url}/actions/runs/${context.runId}) for more details.
+                
+                ---
+                *This issue was automatically created by the deployment workflow.*
+              `,
+              labels: ['bug', 'deployment', 'worker']
+            });
+
+  health-check:
+    needs: deploy
+    runs-on: ubuntu-latest
+    name: Post-deployment Health Check
+    
+    steps:
+      - name: Wait for deployment
+        run: sleep 30
+
+      - name: Health check
+        run: |
+          WORKER_URL="https://mcp-hub-worker.${{ secrets.CLOUDFLARE_SUBDOMAIN }}.workers.dev"
+          
+          echo "🔍 Checking worker health at: $WORKER_URL"
+          
+          # Check if worker is responding
+          if curl -f -s "$WORKER_URL/api/health" > /dev/null; then
+            echo "✅ Worker is healthy"
+          else
+            echo "❌ Worker health check failed"
+            exit 1
+          fi
+          
+          # Check API endpoints
+          echo "🔍 Testing API endpoints..."
+          
+          if curl -f -s "$WORKER_URL/api/servers" > /dev/null; then
+            echo "✅ /api/servers endpoint is working"
+          else
+            echo "❌ /api/servers endpoint failed"
+            exit 1
+          fi
+          
+          if curl -f -s "$WORKER_URL/api/stats" > /dev/null; then
+            echo "✅ /api/stats endpoint is working"
+          else
+            echo "❌ /api/stats endpoint failed"
+            exit 1
+          fi
+          
+          echo "🎉 All health checks passed!"
+
+      - name: Update README with deployment info
+        if: success()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = 'README.md';
+            
+            if (fs.existsSync(path)) {
+              let content = fs.readFileSync(path, 'utf8');
+              const deploymentInfo = `
+            ## 🚀 Live Deployment
+            
+            - **Worker API**: https://mcp-hub-worker.${{ secrets.CLOUDFLARE_SUBDOMAIN }}.workers.dev
+            - **Dashboard**: https://${{ github.repository_owner }}.github.io/mcp-hub
+            - **Last Updated**: ${new Date().toISOString()}
+            `;
+              
+              // Replace existing deployment info or add it
+              if (content.includes('## 🚀 Live Deployment')) {
+                content = content.replace(/## 🚀 Live Deployment[\s\S]*?(?=\n## |\n# |$)/, deploymentInfo);
+              } else {
+                content = deploymentInfo + '\n' + content;
+              }
+              
+              fs.writeFileSync(path, content);
+              
+              // Commit the changes
+              const { execSync } = require('child_process');
+              try {
+                execSync('git config --local user.email "action@github.com"');
+                execSync('git config --local user.name "GitHub Action"');
+                execSync('git add README.md');
+                execSync('git commit -m "📝 Update deployment info [skip ci]"');
+                execSync('git push');
+                console.log('✅ README updated with deployment info');
+              } catch (error) {
+                console.log('ℹ️ No changes to commit or push failed');
+              }
+            }

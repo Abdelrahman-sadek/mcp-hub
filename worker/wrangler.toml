@@ -1,0 +1,47 @@
+name = "mcp-hub-worker"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Development configuration
+[env.development]
+workers_dev = true
+
+# Production configuration
+[env.production]
+workers_dev = false
+route = "api.mcp-hub.dev/*"
+
+# KV Namespaces
+[[kv_namespaces]]
+binding = "MCP_REGISTRY"
+id = "YOUR_REGISTRY_KV_NAMESPACE_ID"
+preview_id = "YOUR_REGISTRY_KV_PREVIEW_ID"
+
+[[kv_namespaces]]
+binding = "MCP_CACHE"
+id = "YOUR_CACHE_KV_NAMESPACE_ID"
+preview_id = "YOUR_CACHE_KV_PREVIEW_ID"
+
+# Environment variables
+[vars]
+ENVIRONMENT = "development"
+
+# Production environment variables (set via wrangler secret)
+# ADMIN_API_KEY = "your-admin-api-key"
+# GITHUB_TOKEN = "your-github-token"
+
+# Build configuration
+[build]
+command = "npm run build"
+
+# Cron triggers for health checking
+[triggers]
+crons = [
+  "*/30 * * * *",  # Every 30 minutes
+  "0 */6 * * *"    # Every 6 hours (backup check)
+]
+
+# Limits
+[limits]
+cpu_ms = 50

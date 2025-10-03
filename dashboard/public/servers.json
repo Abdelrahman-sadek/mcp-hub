@@ -1,0 +1,140 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2025-10-04T00:00:00Z",
+  "servers": [
+    {
+      "id": "example-mcp",
+      "name": "Example MCP Server",
+      "description": "A sample MCP server for demonstration purposes",
+      "url": "https://example.com/mcp",
+      "version": "1.0.0",
+      "tags": ["example", "demo"],
+      "author": {
+        "name": "MCP Hub Team",
+        "github": "mcp-hub"
+      },
+      "verified": true,
+      "healthStatus": "online",
+      "lastChecked": "2025-10-04T00:00:00Z",
+      "capabilities": ["query", "chat", "tools"],
+      "authentication": {
+        "type": "none",
+        "required": false
+      },
+      "createdAt": "2025-10-04T00:00:00Z",
+      "updatedAt": "2025-10-04T00:00:00Z"
+    },
+    {
+      "id": "context7-docs",
+      "name": "Context7 Documentation Server",
+      "description": "Access comprehensive documentation for popular libraries and frameworks",
+      "url": "https://api.context7.dev/mcp",
+      "version": "2.1.0",
+      "tags": ["documentation", "libraries", "reference"],
+      "author": {
+        "name": "Context7 Team",
+        "url": "https://context7.dev",
+        "github": "context7"
+      },
+      "verified": true,
+      "healthStatus": "online",
+      "lastChecked": "2025-10-04T00:00:00Z",
+      "capabilities": ["get-library-docs", "resolve-library-id", "search-docs"],
+      "authentication": {
+        "type": "api-key",
+        "required": true
+      },
+      "rateLimit": {
+        "requests": 1000,
+        "window": "1h"
+      },
+      "createdAt": "2025-10-04T00:00:00Z",
+      "updatedAt": "2025-10-04T00:00:00Z"
+    },
+    {
+      "id": "github-integration",
+      "name": "GitHub Integration Server",
+      "description": "Interact with GitHub repositories, issues, and pull requests",
+      "url": "https://api.github-mcp.dev/mcp",
+      "version": "1.5.2",
+      "tags": ["github", "git", "repositories", "collaboration"],
+      "author": {
+        "name": "GitHub MCP Team",
+        "url": "https://github-mcp.dev",
+        "github": "github-mcp"
+      },
+      "verified": true,
+      "healthStatus": "online",
+      "lastChecked": "2025-10-04T00:00:00Z",
+      "capabilities": ["github-api", "repo-management", "issue-tracking", "pr-management"],
+      "authentication": {
+        "type": "oauth",
+        "required": true
+      },
+      "rateLimit": {
+        "requests": 5000,
+        "window": "1h"
+      },
+      "createdAt": "2025-10-04T00:00:00Z",
+      "updatedAt": "2025-10-04T00:00:00Z"
+    },
+    {
+      "id": "web-search",
+      "name": "Web Search MCP Server",
+      "description": "Perform web searches and retrieve relevant information from the internet",
+      "url": "https://api.websearch-mcp.dev/mcp",
+      "version": "1.2.1",
+      "tags": ["search", "web", "information", "research"],
+      "author": {
+        "name": "WebSearch MCP Team",
+        "github": "websearch-mcp"
+      },
+      "verified": false,
+      "healthStatus": "online",
+      "lastChecked": "2025-10-04T00:00:00Z",
+      "capabilities": ["web-search", "url-fetch", "content-extraction"],
+      "authentication": {
+        "type": "api-key",
+        "required": true
+      },
+      "rateLimit": {
+        "requests": 100,
+        "window": "1h"
+      },
+      "createdAt": "2025-10-04T00:00:00Z",
+      "updatedAt": "2025-10-04T00:00:00Z"
+    },
+    {
+      "id": "database-connector",
+      "name": "Database Connector MCP",
+      "description": "Connect to various databases and execute queries safely",
+      "url": "https://api.db-mcp.dev/mcp",
+      "version": "2.0.0",
+      "tags": ["database", "sql", "data", "queries"],
+      "author": {
+        "name": "DB MCP Team",
+        "url": "https://db-mcp.dev",
+        "github": "db-mcp"
+      },
+      "verified": true,
+      "healthStatus": "degraded",
+      "lastChecked": "2025-10-04T00:00:00Z",
+      "capabilities": ["sql-query", "schema-introspection", "data-export"],
+      "authentication": {
+        "type": "api-key",
+        "required": true
+      },
+      "rateLimit": {
+        "requests": 500,
+        "window": "1h"
+      },
+      "createdAt": "2025-10-04T00:00:00Z",
+      "updatedAt": "2025-10-04T00:00:00Z"
+    }
+  ],
+  "stats": {
+    "totalServers": 5,
+    "onlineServers": 4,
+    "totalRequests": 0
+  }
+}

@@ -1,0 +1,146 @@
+name: Health Check
+
+on:
+  schedule:
+    # Run every 30 minutes
+    - cron: '*/30 * * * *'
+    # Run every 6 hours as backup
+    - cron: '0 */6 * * *'
+  workflow_dispatch: # Allow manual triggering
+    inputs:
+      force_update:
+        description: 'Force update registry file'
+        required: false
+        default: 'false'
+        type: boolean
+
+jobs:
+  health-check:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Needed to commit updated registry
+      
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: 'scripts/package.json'
+
+      - name: Install dependencies
+        run: |
+          cd scripts
+          npm install
+
+      - name: Run health check
+        id: health_check
+        run: |
+          cd scripts
+          node health-check.js
+        env:
+          WORKER_URL: ${{ secrets.WORKER_URL || 'https://mcp-hub-worker.your-subdomain.workers.dev' }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update registry file
+        if: steps.health_check.outputs.changes_detected == 'true' || github.event.inputs.force_update == 'true'
+        run: |
+          # Configure git
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          
+          # Check if there are changes to commit
+          if git diff --quiet dashboard/public/servers.json; then
+            echo "No changes to commit"
+          else
+            # Commit changes
+            git add dashboard/public/servers.json
+            git commit -m "🔄 Update server health status [automated]
+            
+            - Updated health status for MCP servers
+            - Timestamp: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
+            - Triggered by: ${{ github.event_name }}"
+            
+            # Push changes
+            git push
+            
+            echo "Registry updated successfully"
+          fi
+
+      - name: Create issue on failures
+        if: steps.health_check.outputs.critical_servers != ''
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const criticalServers = '${{ steps.health_check.outputs.critical_servers }}';
+            const serverList = criticalServers.split(',').map(s => `- ${s.trim()}`).join('\n');
+            
+            const issueBody = `## 🚨 Critical Server Health Alert
+            
+            The following MCP servers are currently offline or experiencing critical issues:
+            
+            ${serverList}
+            
+            **Timestamp:** ${new Date().toISOString()}
+            **Check Type:** ${{ github.event_name }}
+            
+            ### Recommended Actions
+            1. Verify server connectivity
+            2. Check server logs for errors
+            3. Contact server maintainers if issues persist
+            4. Consider temporarily removing servers from registry if permanently offline
+            
+            This issue was automatically created by the health check workflow.
+            `;
+            
+            // Check if there's already an open issue for health alerts
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: ['health-alert', 'automated'],
+              state: 'open'
+            });
+            
+            if (issues.length === 0) {
+              // Create new issue
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: `🚨 Server Health Alert - ${new Date().toISOString().split('T')[0]}`,
+                body: issueBody,
+                labels: ['health-alert', 'automated', 'bug']
+              });
+            } else {
+              // Update existing issue
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issues[0].number,
+                body: `## 🔄 Health Check Update\n\n${issueBody}`
+              });
+            }
+
+      - name: Summary
+        run: |
+          echo "## Health Check Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- **Timestamp:** $(date -u +"%Y-%m-%d %H:%M:%S UTC")" >> $GITHUB_STEP_SUMMARY
+          echo "- **Trigger:** ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ steps.health_check.outputs.total_servers }}" != "" ]; then
+            echo "- **Total Servers:** ${{ steps.health_check.outputs.total_servers }}" >> $GITHUB_STEP_SUMMARY
+            echo "- **Online:** ${{ steps.health_check.outputs.online_servers }}" >> $GITHUB_STEP_SUMMARY
+            echo "- **Degraded:** ${{ steps.health_check.outputs.degraded_servers }}" >> $GITHUB_STEP_SUMMARY
+            echo "- **Offline:** ${{ steps.health_check.outputs.offline_servers }}" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [ "${{ steps.health_check.outputs.critical_servers }}" != "" ]; then
+            echo "- **⚠️ Critical Servers:** ${{ steps.health_check.outputs.critical_servers }}" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Health check completed successfully! 🎉" >> $GITHUB_STEP_SUMMARY
