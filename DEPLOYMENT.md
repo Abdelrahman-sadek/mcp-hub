@@ -1,6 +1,8 @@
 # MCP Hub Deployment Guide 🚀
 
-This guide provides step-by-step instructions for deploying MCP Hub to production using GitHub Pages and Cloudflare Workers.
+This guide provides step-by-step instructions for deploying MCP Hub using a **hybrid approach**:
+- **Cloudflare Pages** for the React dashboard
+- **Cloudflare Workers** for the backend API (deployed via GitHub Actions)
 
 ## 📋 Prerequisites
 

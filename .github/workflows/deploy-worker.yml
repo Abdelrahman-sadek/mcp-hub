@@ -6,6 +6,8 @@ on:
     paths:
       - 'worker/**'
       - '.github/workflows/deploy-worker.yml'
+  # Also trigger when dashboard changes to update API integration
+  workflow_dispatch:
   workflow_dispatch:
 
 jobs:

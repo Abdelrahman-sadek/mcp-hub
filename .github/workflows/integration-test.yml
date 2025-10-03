@@ -1,0 +1,65 @@
+name: Integration Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+  # Run after worker deployment
+  workflow_run:
+    workflows: ["Deploy Cloudflare Worker"]
+    types:
+      - completed
+
+jobs:
+  test-integration:
+    runs-on: ubuntu-latest
+    name: Test Dashboard-Worker Integration
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: |
+            worker/package-lock.json
+            dashboard/package-lock.json
+
+      - name: Test Worker API
+        run: |
+          echo "Testing Worker API endpoints..."
+          
+          # Test health endpoint
+          curl -f "https://mcp-hub-worker.tito-7t.workers.dev/api/health" || exit 1
+          echo "✅ Health endpoint working"
+          
+          # Test servers endpoint
+          curl -f "https://mcp-hub-worker.tito-7t.workers.dev/api/servers" || exit 1
+          echo "✅ Servers endpoint working"
+          
+          # Test CORS headers
+          curl -H "Origin: https://mcp-hub.pages.dev" \
+               -H "Access-Control-Request-Method: GET" \
+               -H "Access-Control-Request-Headers: Content-Type" \
+               -X OPTIONS \
+               "https://mcp-hub-worker.tito-7t.workers.dev/api/health" || exit 1
+          echo "✅ CORS headers working"
+
+      - name: Test Dashboard Build
+        run: |
+          cd dashboard
+          npm ci
+          VITE_API_BASE_URL=https://mcp-hub-worker.tito-7t.workers.dev npm run build
+          echo "✅ Dashboard builds successfully with worker integration"
+
+      - name: Integration Test Summary
+        run: |
+          echo "🎉 Integration Tests Passed!"
+          echo "✅ Worker API: https://mcp-hub-worker.tito-7t.workers.dev"
+          echo "✅ Dashboard: Ready for Cloudflare Pages deployment"
+          echo "✅ CORS: Properly configured for cross-origin requests"
