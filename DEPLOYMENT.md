@@ -7,8 +7,8 @@ This guide provides step-by-step instructions for deploying MCP Hub using a **hy
 ## 📋 Prerequisites
 
 ### Required Accounts
-- **GitHub Account**: For hosting the repository and GitHub Pages
-- **Cloudflare Account**: For Workers and KV storage (free tier sufficient)
+- **GitHub Account**: For hosting the repository and GitHub Actions
+- **Cloudflare Account**: For Workers, Pages, and KV storage (free tier sufficient)
 
 ### Required Tools
 - **Node.js 18+**: For local development and building
@@ -78,7 +78,7 @@ id = "your-cache-namespace-id"
 2. Click **New repository**
 3. Repository name: `mcp-hub` (or your preferred name)
 4. Description: `MCP Hub - Central registry and gateway for Model Context Protocol servers`
-5. Set to **Public** (required for GitHub Pages free tier)
+5. Set to **Public** (recommended for open source)
 6. **Do NOT** initialize with README, .gitignore, or license (we have these files)
 7. Click **Create repository**
 
@@ -92,10 +92,18 @@ id = "your-cache-namespace-id"
 | `CLOUDFLARE_ACCOUNT_ID` | Your account ID from Step 1.2 | Cloudflare account identifier |
 | `CLOUDFLARE_SUBDOMAIN` | Your subdomain from Step 1.6 | Worker subdomain (e.g., `my-subdomain`) |
 
-### 2.3 Enable GitHub Pages
-1. Go to **Settings** → **Pages**
-2. Source: **GitHub Actions**
-3. This will be automatically configured when you push the code
+### 2.3 Configure Cloudflare Pages
+1. Go to [Cloudflare Dashboard](https://dash.cloudflare.com) → **Pages**
+2. Click **Create a project** → **Connect to Git**
+3. Select your GitHub repository: `Abdelrahman-sadek/mcp-hub`
+4. Configure build settings:
+   - **Framework preset**: React
+   - **Build command**: `cd dashboard && npm install && npm run build`
+   - **Build output directory**: `dashboard/dist`
+5. Add environment variable:
+   - **Variable name**: `VITE_API_BASE_URL`
+   - **Value**: `https://mcp-hub-worker.tito-7t.workers.dev`
+6. Click **Save and Deploy**
 
 ## 🧪 Step 3: Local Testing
 
@@ -163,12 +171,12 @@ git push -u origin main
 1. Go to your repository → **Actions**
 2. You should see workflows running:
    - **Deploy Cloudflare Worker**
-   - **Deploy GitHub Pages**
+   - **Integration Tests**
    - **Health Check**
 
 ### 5.2 Verify Worker Deployment
 1. Wait for the worker deployment to complete
-2. Visit: `https://mcp-hub-worker.YOUR_SUBDOMAIN.workers.dev/api/health`
+2. Visit: `https://mcp-hub-worker.tito-7t.workers.dev/api/health`
 3. You should see a JSON response with health status
 
 ### 5.3 Verify Pages Deployment
@@ -207,9 +215,9 @@ The dashboard should automatically use the correct API URL, but verify in the br
 - **Check KV Namespaces**: Ensure they exist and IDs are correct in wrangler.toml
 
 #### Pages Deployment Fails
-- **Check Repository Visibility**: Must be public for free GitHub Pages
-- **Check Build Errors**: Review the Actions logs for build failures
-- **Check Base Path**: Ensure `base: '/mcp-hub/'` is set in vite.config.ts
+- **Check Cloudflare Pages**: Review build logs in Cloudflare Dashboard
+- **Check Build Command**: Ensure `cd dashboard && npm install && npm run build` is correct
+- **Check Environment Variables**: Verify `VITE_API_BASE_URL` is set correctly
 
 #### API Calls Fail
 - **CORS Issues**: Check that CORS headers are properly set in the worker
@@ -244,7 +252,7 @@ npx wrangler deploy --force
 
 - **GitHub Issues**: Create an issue in the repository
 - **Cloudflare Docs**: [developers.cloudflare.com](https://developers.cloudflare.com)
-- **GitHub Pages Docs**: [docs.github.com/pages](https://docs.github.com/pages)
+- **Cloudflare Pages Docs**: [developers.cloudflare.com/pages](https://developers.cloudflare.com/pages)
 
 ## 🔄 Updating the Deployment
 

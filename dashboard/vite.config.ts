@@ -6,7 +6,7 @@ import path from 'path'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: '/mcp-hub/', // GitHub Pages repository name
+  base: '/', // Cloudflare Pages uses root path
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),

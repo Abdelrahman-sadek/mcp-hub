@@ -2,9 +2,9 @@
 
 > The central registry and gateway for Model Context Protocol (MCP) servers
 
-[![Deploy Worker](https://github.com/YOUR_USERNAME/mcp-hub/actions/workflows/deploy-worker.yml/badge.svg)](https://github.com/YOUR_USERNAME/mcp-hub/actions/workflows/deploy-worker.yml)
-[![Deploy Pages](https://github.com/YOUR_USERNAME/mcp-hub/actions/workflows/deploy-pages.yml/badge.svg)](https://github.com/YOUR_USERNAME/mcp-hub/actions/workflows/deploy-pages.yml)
-[![Health Check](https://github.com/YOUR_USERNAME/mcp-hub/actions/workflows/health-check.yml/badge.svg)](https://github.com/YOUR_USERNAME/mcp-hub/actions/workflows/health-check.yml)
+[![Deploy Worker](https://github.com/Abdelrahman-sadek/mcp-hub/actions/workflows/deploy-worker.yml/badge.svg)](https://github.com/Abdelrahman-sadek/mcp-hub/actions/workflows/deploy-worker.yml)
+[![Integration Tests](https://github.com/Abdelrahman-sadek/mcp-hub/actions/workflows/integration-test.yml/badge.svg)](https://github.com/Abdelrahman-sadek/mcp-hub/actions/workflows/integration-test.yml)
+[![Health Check](https://github.com/Abdelrahman-sadek/mcp-hub/actions/workflows/health-check.yml/badge.svg)](https://github.com/Abdelrahman-sadek/mcp-hub/actions/workflows/health-check.yml)
 
 ## 🌟 Overview
 
@@ -18,13 +18,13 @@ MCP Hub is a comprehensive registry, gateway, and orchestration layer for Model 
 - **🔗 Schema Federation**: Unified schema from multiple servers with conflict resolution
 - **📊 Analytics**: Usage statistics and performance metrics
 - **🎨 Modern UI**: Beautiful, responsive dashboard with dark/light mode
-- **🚀 100% Free**: Built on free tier services (Cloudflare Workers + GitHub Pages)
+- **🚀 100% Free**: Built on free tier services (Cloudflare Workers + Cloudflare Pages)
 
 ## 🏗️ Architecture
 
 ### 🛠️ Tech Stack
 
-**Frontend (GitHub Pages)**
+**Frontend (Cloudflare Pages)**
 - React 18 + TypeScript
 - Vite for build tooling
 - Tailwind CSS for styling
@@ -54,35 +54,42 @@ MCP Hub is a comprehensive registry, gateway, and orchestration layer for Model 
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/mcp-hub.git
+git clone https://github.com/Abdelrahman-sadek/mcp-hub.git
 cd mcp-hub
 ```
 
-### 2. Set Up Cloudflare Worker
+### 2. Local Development
 
 ```bash
+# Set up worker
 cd worker
 npm install
-cp wrangler.toml.example wrangler.toml
-# Edit wrangler.toml with your account details
-npm run deploy
-```
+npm run dev
 
-### 3. Set Up Dashboard
-
-```bash
-cd ../dashboard
+# Set up dashboard (in another terminal)
+cd dashboard
 npm install
 npm run dev
 ```
 
-### 4. Configure GitHub Secrets
+### 3. Production Deployment
 
-Add these secrets to your GitHub repository:
+**Hybrid Architecture**: Cloudflare Pages (dashboard) + GitHub Actions (worker)
 
-- `CLOUDFLARE_API_TOKEN`: Your Cloudflare API token
-- `CLOUDFLARE_ACCOUNT_ID`: Your Cloudflare account ID
-- `CLOUDFLARE_SUBDOMAIN`: Your worker subdomain
+#### Configure Cloudflare Pages:
+1. Go to [Cloudflare Dashboard](https://dash.cloudflare.com) → Pages
+2. Connect your GitHub repository
+3. Set build settings:
+   - **Build command**: `cd dashboard && npm install && npm run build`
+   - **Output directory**: `dashboard/dist`
+   - **Environment variable**: `VITE_API_BASE_URL=https://mcp-hub-worker.tito-7t.workers.dev`
+
+#### Enable GitHub Actions:
+1. Go to repository Settings → Actions → Enable workflows
+2. Add secrets in Settings → Secrets:
+   - `CLOUDFLARE_API_TOKEN`: Your Cloudflare API token
+   - `CLOUDFLARE_ACCOUNT_ID`: Your Cloudflare account ID
+   - `CLOUDFLARE_SUBDOMAIN`: tito-7t
 
 ## 📁 Project Structure
 
@@ -119,7 +126,7 @@ mcp-hub/
 
 ### Base URL
 ```
-https://mcp-hub-worker.YOUR_SUBDOMAIN.workers.dev
+https://mcp-hub-worker.tito-7t.workers.dev
 ```
 
 ### Endpoints
@@ -191,21 +198,26 @@ Content-Type: application/json
 
 ## 🚦 Current Status
 
-### ✅ Completed Phases
+### ✅ Completed Features
 
-- **Phase 1**: Project structure and basic Cloudflare Worker
-- **Phase 2**: Registry system and data models
-- **Phase 3**: Basic dashboard with browse functionality
+- **✅ Phase 1-3**: Core infrastructure and dashboard
+- **✅ Phase 4-6**: Health monitoring, proxy, and schema federation
+- **✅ Phase 7-9**: Complete dashboard, GitHub Actions, and documentation
+- **✅ Phase 10**: Testing infrastructure and TypeScript optimization
+- **✅ Hybrid Deployment**: Cloudflare Pages + Workers architecture
 
-### 🔄 In Progress
+### 🔄 Deployment Status
 
-- Phase 4: Health checking system
-- Phase 5: Proxy functionality
-- Phase 6: Schema federation
-- Phase 7: Complete dashboard
-- Phase 8: GitHub Actions automation
-- Phase 9: Documentation
-- Phase 10: Testing and polish
+- **Dashboard**: Ready for Cloudflare Pages deployment
+- **Worker API**: Ready for GitHub Actions deployment
+- **Integration**: Automated testing configured
+- **Documentation**: Complete with deployment guides
+
+### 🎯 Next Steps
+
+1. Complete Cloudflare Pages configuration
+2. Enable GitHub Actions and add secrets
+3. Verify end-to-end functionality
 
 ## 🤝 Contributing
 
@@ -221,10 +233,12 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ## 🔗 Links
 
-- [Live Demo](https://your-username.github.io/mcp-hub/)
+- [Live Dashboard](https://mcp-hub.pages.dev/)
+- [Worker API](https://mcp-hub-worker.tito-7t.workers.dev/api/health)
+- [GitHub Repository](https://github.com/Abdelrahman-sadek/mcp-hub)
 - [API Documentation](docs/API.md)
-- [Contributing Guide](docs/CONTRIBUTING.md)
-- [Architecture Overview](docs/ARCHITECTURE.md)
+- [Contributing Guide](CONTRIBUTING.md)
+- [Architecture Overview](ARCHITECTURE.md)
 
 ---
 

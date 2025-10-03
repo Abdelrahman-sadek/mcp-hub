@@ -7,7 +7,7 @@ This document provides a comprehensive overview of the MCP Hub architecture, des
 MCP Hub is a serverless, cloud-native application built entirely on free-tier services. It serves as a central registry, gateway, and orchestration layer for Model Context Protocol (MCP) servers.
 
 ### Core Principles
-- **100% Free**: Built on free-tier services (Cloudflare Workers + GitHub Pages)
+- **100% Free**: Built on free-tier services (Cloudflare Workers + Cloudflare Pages)
 - **Serverless**: No server management, automatic scaling
 - **Performance**: Global CDN, edge computing, aggressive caching
 - **Security**: Built-in DDoS protection, rate limiting, secure headers
@@ -28,7 +28,7 @@ graph TB
     end
     
     subgraph "Frontend Layer"
-        E[GitHub Pages]
+        E[Cloudflare Pages]
         F[React Dashboard]
     end
     

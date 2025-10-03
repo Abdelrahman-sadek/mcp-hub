@@ -7,7 +7,7 @@ Thank you for your interest in contributing to MCP Hub! This document provides g
 ### 1. Submit MCP Servers
 The easiest way to contribute is by adding your MCP server to the registry:
 
-1. Visit the [Add Server](https://YOUR_USERNAME.github.io/mcp-hub/add) page
+1. Visit the [Add Server](https://mcp-hub.pages.dev/add) page
 2. Fill out the server information form
 3. Submit for review
 4. Once approved, your server will appear in the registry
@@ -15,7 +15,7 @@ The easiest way to contribute is by adding your MCP server to the registry:
 ### 2. Report Issues
 Help us improve by reporting bugs or suggesting features:
 
-- Use the [Issue Tracker](https://github.com/YOUR_USERNAME/mcp-hub/issues)
+- Use the [Issue Tracker](https://github.com/Abdelrahman-sadek/mcp-hub/issues)
 - Search existing issues before creating new ones
 - Provide detailed information and reproduction steps
 - Use appropriate labels (bug, enhancement, documentation, etc.)
@@ -35,7 +35,7 @@ We welcome code contributions! Here's how to get started:
 
 1. **Fork and Clone**
    ```bash
-   git clone https://github.com/YOUR_USERNAME/mcp-hub.git
+   git clone https://github.com/Abdelrahman-sadek/mcp-hub.git
    cd mcp-hub
    ```
 
