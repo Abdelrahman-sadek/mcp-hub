@@ -63,13 +63,7 @@ export interface ProxyRequest {
   body?: any;
 }
 
-export interface ProxyResponse {
-  success: boolean;
-  data?: any;
-  error?: string;
-  statusCode: number;
-  headers?: Record<string, string>;
-}
+
 
 export interface HealthCheckResult {
   serverId: string;
@@ -132,10 +126,12 @@ export interface ProxyRequest {
 export interface ProxyResponse {
   success: boolean;
   status: number;
+  statusCode: number;
   statusText: string;
   headers: Record<string, string>;
   body: string;
   responseTime: number;
+  data?: any;
   error?: string;
 }
 

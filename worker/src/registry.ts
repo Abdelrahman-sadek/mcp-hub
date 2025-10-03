@@ -216,14 +216,14 @@ async function fetchRegistryFromGitHub(): Promise<Registry> {
     throw new Error(`Failed to fetch registry: ${response.status}`);
   }
 
-  const registry = await response.json();
-  
+  const registry = await response.json() as any;
+
   // Validate registry structure
   if (!registry.version || !registry.servers || !Array.isArray(registry.servers)) {
     throw new Error('Invalid registry format');
   }
 
-  return registry;
+  return registry as Registry;
 }
 
 /**

@@ -5,6 +5,17 @@
 
 import { RequestContext, MCPServer, ProxyRequest, ProxyResponse } from './types';
 import { getServer } from './registry';
+
+/**
+ * Convert Headers object to plain object
+ */
+function headersToObject(headers: Headers): Record<string, string> {
+  const result: Record<string, string> = {};
+  headers.forEach((value, key) => {
+    result[key] = value;
+  });
+  return result;
+}
 import { checkRateLimit } from './auth';
 
 const PROXY_TIMEOUT = 30000; // 30 seconds
@@ -96,7 +107,7 @@ export async function proxyRequest(
         requestHeaders: proxyHeaders,
         requestBody: proxyBody,
         responseStatus: response.status,
-        responseHeaders: Object.fromEntries(response.headers.entries()),
+        responseHeaders: headersToObject(response.headers),
         responseBody,
         responseTime,
         timestamp: new Date().toISOString(),
@@ -105,8 +116,9 @@ export async function proxyRequest(
       return {
         success: true,
         status: response.status,
+        statusCode: response.status,
         statusText: response.statusText,
-        headers: Object.fromEntries(response.headers.entries()),
+        headers: headersToObject(response.headers),
         body: responseBody,
         responseTime,
       };
@@ -147,6 +159,7 @@ export async function proxyRequest(
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',
       status: 500,
+      statusCode: 500,
       statusText: 'Internal Server Error',
       headers: {},
       body: '',

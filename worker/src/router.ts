@@ -306,7 +306,7 @@ async function handleProxyEndpoint(
     const { proxyRequest } = await import('./proxy');
 
     // Parse request body
-    const requestBody = await ctx.request.json();
+    const requestBody = await ctx.request.json() as any;
     const { serverId, path, method: targetMethod, headers, body } = requestBody;
 
     // Validate required fields
@@ -336,7 +336,7 @@ async function handleProxyEndpoint(
         statusText: result.statusText,
         headers: {
           ...rateLimitHeaders,
-          'Content-Type': result.headers['content-type'] || 'application/json',
+          'Content-Type': result.headers?.['content-type'] || 'application/json',
           'X-Proxy-Response-Time': result.responseTime.toString(),
           'X-Proxy-Server-Id': serverId,
         },
